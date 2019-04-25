@@ -1,7 +1,10 @@
 const { User } = require('../models')
 const { validationResult } = require('express-validator/check');
 const bcryptjs = require('bcryptjs');
+const validateDecorator = require('../services/validate-decorator');
+const { createToken } = require('../services/auth-service');
 
+// MVC => controller => actions
 function create(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -27,6 +30,17 @@ function create(req, res, next) {
     })
 }
 
-module.exports = {
-    create
+function login(req, res, next) {
+    const loginUser = req.body;
+    User.login(loginUser).then(createToken).then(token => {
+        res.json({ token });
+        next()
+    }).catch(error => {
+        res.status(401).json({ error });
+    })
 }
+
+module.exports = validateDecorator({
+    create,
+    login
+})

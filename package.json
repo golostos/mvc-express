@@ -6,11 +6,12 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
     "express-validator": "^5.3.1",
+    "jsonwebtoken": "^8.5.1",
     "mysql2": "^1.6.5",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "2.1.8",
-    "sequelize": "^5.2.7",
+    "sequelize": "^5.7.1",
     "sequelize-cli": "^5.4.0"
   },
   "scripts": {
