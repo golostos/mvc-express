@@ -1,0 +1,40 @@
+POST http://localhost:3000/api/signup HTTP/1.1
+content-type: application/json
+
+{
+	"login": "SAN69",
+	"email": "SAN69@test.ru",
+	"password": "user2password",
+	"text": "lorem",
+	"haha": "hack you"
+}
+
+###
+
+POST http://localhost:3000/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "loginOrEmail": "san9",
+    "password": "user2password"
+}
+
+###
+
+PATCH  http://localhost:3000/api/user/san6/update HTTP/1.1
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDMsInJvbGUiOiJhZG1pbiIsImlhdCI6MTU1Nzc3OTk1OCwiZXhwIjoxNTU3ODY2MzU4fQ.x7eyro_Lrz0x2X1xXRVwAkAHmM_hJqwXhRlpc703csA
+
+{
+    "login": "SAN6",
+	"email": "SAN6@test.ru",
+    "newPassword": "user2password",
+	"role": "user",
+	"profile": {
+		"vk": "http://vk.com",
+		"facebook": "http://facebook.com",
+		"github": "http://github.com"
+	}
+}
+
+###

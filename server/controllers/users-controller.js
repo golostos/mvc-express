@@ -1,46 +1,49 @@
-const { User } = require('../models')
-const { validationResult } = require('express-validator/check');
-const bcryptjs = require('bcryptjs');
-const validateDecorator = require('../services/validate-decorator');
-const { createToken } = require('../services/auth-service');
+const { User } = require('@models')
+const { validateDecorator, errorAsyncDecorator, compose } = require('@services/controller-decorators');
+const { createToken } = require('@services/auth-service');
+const grants = require('@config-server/grants');
+const _ = require('lodash');
 
 // MVC => controller => actions
-function create(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({errors: errors.array()})
-    }
-    // res.send(req.body);
-    User.findOne({where: { email: req.body.email }}).then(user => {
-        if (user) {
-            return Promise.reject({statusCode: 422, message: "This email is already used"});
-        } else {
-            const {login, email, password} = req.body;
-            const salt = bcryptjs.genSaltSync(10);
-            console.log('Salt: ' + salt);
-            const passwordHash = bcryptjs.hashSync(password, salt);
-            return User.create({login, email, password: passwordHash});
-        }
-    })
-    .then(user => {
-        res.json(user);
-    })
-    .catch(error => {
-        res.status(error.statusCode || 400).json({error: error.message});
-    })
+async function create(req, res, next) {
+  const newUser = await User.createUser(req.body)
+  res.json({
+    success: true,
+    login: newUser.login,
+    email: newUser.email,
+    token: createToken(newUser)
+  });
 }
 
-function login(req, res, next) {
-    const loginUser = req.body;
-    User.login(loginUser).then(createToken).then(token => {
-        res.json({ token });
-        next()
-    }).catch(error => {
-        res.status(401).json({ error });
-    })
+async function login(req, res, next) {
+  const loginUser = req.body;
+  const user = await User.login(loginUser)
+  const token = createToken(user)
+  res.json({ token });
 }
 
-module.exports = validateDecorator({
-    create,
-    login
+async function update(req, res, next) {
+  const { role } = req.credentials;
+  const permission = {
+    updateAny: grants.can(role).updateAny('user'),
+    updateOwn: grants.can(role).updateOwn('user')
+  }
+  const updatedUser = await User.updateUser({
+    credentials: req.credentials,
+    permission,
+    login: req.params.login,
+    newUserData: req.body
+  })
+  res.json({
+    success: true,
+    updatedUserData: _.pickBy(updatedUser, (value, key) => {
+      return ['login', 'email', 'role', 'profile'].includes(key)
+    })
+  })
+}
+
+module.exports = compose(validateDecorator, errorAsyncDecorator)({
+  create,
+  login,
+  update
 })

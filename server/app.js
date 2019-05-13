@@ -1,24 +1,24 @@
+require('module-alias/register');
 const express = require('express');
 const app = express();
 const { body, validationResult } = require('express-validator/check');
 const bodyParser = require('body-parser');
-const { userValidator, loginValidator } = require('./services/validators');
-const UserController = require('./controllers/users-controller')
+const { createUserValidator, loginValidator, updateUserValidator } = require('@services/validators');
+const UserController = require('@controllers/users-controller')
+const { verifyToken } = require('@services/auth-service');
 
 app.use(express.json());
+app.use('/api/*', verifyToken)
 
-app.get('/hello', (req, res, next) => {
-    //res.send('Hello');
-    console.log('step 1');
-    next();
-}, (req, res, next) => {
-    console.log('step 2')
-    res.send('Hello');
-});
-
-app.post('/api/signup', userValidator, UserController.create);
+app.post('/api/signup', createUserValidator, UserController.create);
 app.post('/api/login', loginValidator, UserController.login);
+app.patch('/api/user/:login/update', updateUserValidator, UserController.update);
 
+app.use((err, req, res, next) => {
+    console.error(err);
+    const error = err.statusCode >= 500 ? 'There are some problems on the server' : err.message;
+    res.status(err.statusCode).json({ error })
+})
 
 app.listen(4000, () => {
     console.log('Server started on 4000 port');

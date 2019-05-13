@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@models" : ["./server/models/index.js"],
+        "@models/*" : ["./server/models/*"],
+        "@controllers/*" : ["./server/controllers/*"],
+        "@services/*" : ["./server/services/*"],
+        "@config-server/*" : ["./server/config/*"]
+      }
+    },
+    "exclude": [
+        "node_modules"
+    ]
+  }

@@ -1,28 +1,26 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config/config');
+const config = require('@config-server/config');
 
 function createToken(userFromDB) {
-    const token = jwt.sign({ id: userFromDB.dataValues.id }, config.secret, {
+    const token = jwt.sign({ id: userFromDB.id, role: userFromDB.role }, config.secret, {
         expiresIn: 86400
     })
     return token;
 }
 
 function verifyToken(req, res, next) {
-    let token;
-    if (req.headers['autorization']) token = req.headers['autorization'];
-    if (token) {
-        token = token.replace(/bearer|jwt\s+/i, '');
+    if (req.headers['authorization'] && req.headers['authorization'].length) {
+        const token = req.headers['authorization'].replace(/(bearer|jwt)\s+/i, '');
         jwt.verify(token, config.secret, (err, decodedToken) => {
             if (err) {
-                res.status(401).json({error: "Failed to authenticate token"})
-                return;
+                return next({ message: "Failed to authenticate token", statusCode: 401 });
             }
-            req.userId = decodedToken.id;
+            req.credentials = { id: decodedToken.id, role: decodedToken.role };
             next();
         })
     } else {
-        res.status(401).json({error: "No token provided"})
+        req.credentials = { role: 'guest' };
+        next();
     }
 }
 
