@@ -1,6 +1,6 @@
 const { User } = require('@models')
 const { validateDecorator, errorAsyncDecorator, compose } = require('@services/controller-decorators');
-const { createToken } = require('@services/auth-service');
+const { createToken } = require('@services/auth/auth-service');
 const grants = require('@config-server/grants');
 const _ = require('lodash');
 
@@ -22,17 +22,10 @@ async function login(req, res, next) {
   res.json({ token });
 }
 
-async function update(req, res, next) {
-  const { role } = req.credentials;
-  const permission = {
-    updateAny: grants.can(role).updateAny('user'),
-    updateOwn: grants.can(role).updateOwn('user')
-  }
+async function update(req, res, next) {  
   const updatedUser = await User.updateUser({
-    credentials: req.credentials,
-    permission,
-    login: req.params.login,
-    newUserData: req.body
+    newUserData: req.body,
+    resourceData: req.resourceData
   })
   res.json({
     success: true,
@@ -42,8 +35,20 @@ async function update(req, res, next) {
   })
 }
 
+async function deleteUser(req, res, next) {
+  await User.deleteUser({
+    userData: req.body,
+    resourceData: req.resourceData
+  })
+  res.json({
+    success: true,
+    removedUser: req.params.login
+  })
+}
+
 module.exports = compose(validateDecorator, errorAsyncDecorator)({
   create,
   login,
-  update
+  update,
+  deleteUser
 })

@@ -2,7 +2,7 @@ const AccessControl = require('accesscontrol');
 
 let grantsObject = {
     admin: {
-        user: {
+        User: {
             'create:any': ['*'],
             'read:any': ['*'],
             'update:any': ['*'],
@@ -10,7 +10,7 @@ let grantsObject = {
         }
     },
     user: {
-        user: {
+        User: {
             'read:any': ['*'],
             'update:own': ['*', '!role'],
             'delete:own': ['*']

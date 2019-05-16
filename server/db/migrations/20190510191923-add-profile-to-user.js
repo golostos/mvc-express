@@ -5,14 +5,6 @@ module.exports = {
     return queryInterface.addColumn('users', 'profile', {
       type: Sequelize.JSON,
       allowNull: false,
-      // defaultValue: `{
-      //   "facebook": "",
-      //   "vk": "",
-      //   "github": "",
-      //   "twitter": "",
-      //   "linkedIn": "",
-      //   "aboutMe": ""
-      // }`
     });
   },
 

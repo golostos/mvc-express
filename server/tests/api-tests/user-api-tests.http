@@ -1,0 +1,58 @@
+POST http://localhost:3000/api/signup HTTP/1.1
+content-type: application/json
+
+{
+	"login": "SAN69",
+	"email": "SAN69@test.ru",
+	"password": "user2password",
+	"text": "lorem",
+	"haha": "hack you"
+}
+
+###
+
+POST http://localhost:3000/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "loginOrEmail": "san79",
+    "password": "user2password"
+}
+
+###
+
+POST http://localhost:3000/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "loginOrEmail": "san9",
+    "password": "user2password"
+}
+
+###
+
+PATCH http://localhost:3000/api/users/san69 HTTP/1.1
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDMsInJvbGUiOiJhZG1pbiIsImlhdCI6MTU1Nzk5OTI1NywiZXhwIjoxNTU4MDg1NjU3fQ.mNDXz-Tjc9C2yqNEoSpff0Z04qKZd-BVj7cFQHUnEqY
+
+{
+    "login": "SAN99",
+	"email": "SAN99@test.ru",
+    "password": "user2password",
+	"role": "admin",
+	"profile": {
+		"vk": "http://vk.com",
+		"facebook": "http://facebook.com",
+		"github": "http://github.com"
+	}
+}
+
+###
+
+DELETE http://localhost:3000/api/users/san99 HTTP/1.1
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDMsInJvbGUiOiJhZG1pbiIsImlhdCI6MTU1Nzk5OTI1NywiZXhwIjoxNTU4MDg1NjU3fQ.mNDXz-Tjc9C2yqNEoSpff0Z04qKZd-BVj7cFQHUnEqY
+
+# {
+# 	"password": "user2password"
+# }

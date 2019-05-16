@@ -57,9 +57,14 @@ const updateUserValidator = [
   passwordValidationChain('newPassword').optional(),
 ]
 
+const deleteUserValidator = [
+  passwordValidationChain('password').optional()
+]
+
 module.exports = {
-  createUserValidator: bodyFilter(createUserValidator, 'login', 'password', 'email'),
-  loginValidator: bodyFilter(loginValidator, 'loginOrEmail', 'password'),
-  updateUserValidator: bodyFilter(updateUserValidator, 'login', 'password', 'email',
+  create: bodyFilter(createUserValidator, 'login', 'password', 'email'),
+  login: bodyFilter(loginValidator, 'loginOrEmail', 'password'),
+  update: bodyFilter(updateUserValidator, 'login', 'password', 'email',
     'role', 'profile', 'newPassword'),
+  deleteUser: bodyFilter(deleteUserValidator, 'password')
 };

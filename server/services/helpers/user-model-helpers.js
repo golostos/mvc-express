@@ -1,5 +1,5 @@
 const bcryptjs = require('bcryptjs');
-const { promiseError } = require('@services/error-helper');
+const { promiseError } = require('@services/helpers/error-helper');
 const _ = require('lodash');
 
 async function createPasswordHash(password) {
@@ -8,14 +8,14 @@ async function createPasswordHash(password) {
 }
 
 async function comparePassword(password, hash) {
-  return bcryptjs.compare(password, hash)
+  if (typeof password === 'string') return bcryptjs.compare(password, hash)
+  else return false;
 }
 
 async function updateOwnUserData(newUserData, userFromDB) {
   newUserData = attachNewProfile(newUserData, userFromDB)
   if (newUserData.login || newUserData.email || newUserData.newPassword) {
-    if (typeof newUserData.password === 'string'
-      && await comparePassword(newUserData.password, userFromDB.password)) {
+    if (await comparePassword(newUserData.password, userFromDB.password)) {
         newUserData = await attachNewPassword(newUserData)
     } else return promiseError("Current password required for this operation", 403);
   }

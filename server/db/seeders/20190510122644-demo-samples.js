@@ -5,15 +5,21 @@ module.exports = {
     return queryInterface.bulkInsert('samples', [{
       title: 'One',
       description: 'One',
-      rightAnswer: 'One'
+      rightAnswer: 'One',
+      userId: 44,
+      cases: '["One"]'
     },{
       title: 'Two',
       description: 'Two',
-      rightAnswer: 'Two'
+      rightAnswer: 'Two',
+      userId: 44,
+      cases: '["Two"]'
     },{
       title: 'Three',
       description: 'Three',
-      rightAnswer: 'Three'
+      rightAnswer: 'Three',
+      userId: 44,
+      cases: '["Three"]'
     }], {});
   },
 

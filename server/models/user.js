@@ -3,13 +3,13 @@ const { Model } = require('sequelize');
 const Op = require('sequelize').Op;
 const bcryptjs = require('bcryptjs');
 const { createPasswordHash, updateOwnUserData,
-  updateAnyUserData, comparePassword } = require('@services/model-helpers');
-const { promiseError } = require('@services/error-helper');
+  updateAnyUserData, comparePassword } = require('@services/helpers/user-model-helpers');
+const { promiseError } = require('@services/helpers/error-helper');
 const { profileSchema: { properties: profileSchema } } = require('@config-server/config');
 
 class User extends Model {
   static async createUser({ login, email, password }) {
-    const existUser = await this.findOne({ where: { [Op.or]: [{ email }, { login }] } })
+    const existUser = await User.findOne({ where: { [Op.or]: [{ email }, { login }] } })
     if (existUser) {
       return promiseError("This email or login is already used", 422);
     } else {
@@ -37,27 +37,32 @@ class User extends Model {
     } else return promiseError("Please sign up", 403);
   }
 
-  static async updateUser({ credentials, permission, login, newUserData }) {
-    const userFromDB = await User.findOne({ where: { login } });
-    if (userFromDB) {
-      const isOwn = userFromDB.id === credentials.id;
-      let updatedUserData;
-      if (isOwn && permission.updateOwn.granted) {
-        updatedUserData =
-          await updateOwnUserData(permission.updateOwn.filter(newUserData), userFromDB);
-      } else if (permission.updateAny.granted) {
-        updatedUserData = 
-          await updateAnyUserData(permission.updateAny.filter(newUserData), userFromDB);
-      } else return promiseError("You don't have enough permissions for this", 403);
-      Object.assign(userFromDB, updatedUserData);
-      return userFromDB.save().then(userFromDB => userFromDB.get({ plain: true }))
-        .catch(err => promiseError(err.original, 422))
-    } else return promiseError("Can't find this user: " + login, 422);
+  static async updateUser({ resourceData, newUserData }) {
+    let updatedUserData;
+    const userFromDB = resourceData.resourceInstance;
+    if (resourceData.isOwn) {
+      updatedUserData = await updateOwnUserData(newUserData, userFromDB);
+    } else if (resourceData.isAny) {
+      updatedUserData = await updateAnyUserData(newUserData, userFromDB);
+    }
+    return userFromDB.update(updatedUserData)
+      .then(userFromDB => userFromDB.get({ plain: true }))
+      .catch(err => promiseError(err.original, 422))
+  }
+
+  static async deleteUser({ resourceData, userData: { password } }) {
+    const userFromDB = resourceData.resourceInstance;
+    if (resourceData.isOwn) {
+      if (!(await comparePassword(password, userFromDB.password)))
+        return promiseError("Current password required for this operation", 403)
+    } else if (!resourceData.isAny)
+      return promiseError("You don't have enough permissions for this", 403);
+    return userFromDB.destroy();
   }
 
   static associate(models) {
     console.log('Models: ', models)
-    this.hasMany(models.Sample);
+    this.hasMany(models.Sample, { foreignKey: 'userId' });
   }
 }
 
